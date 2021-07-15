@@ -1,0 +1,33 @@
+name: Generate docs website
+on:
+  push:
+    branches:
+      - main
+    
+jobs:
+  antora:
+    runs-on: ubuntu-latest
+    container: node:14-buster
+    
+    services:
+      kroki:
+        image: yuzutech/kroki
+        env:
+          KROKI_MERMAID_HOST: mermaid
+      mermaid:
+        image: yuzutech/kroki-mermaid
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Antora
+        run: npm i
+
+      - run: ./generate-site
+
+      - name: Deploy site
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/site
+          publish_branch: site
